@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "data.h"
+#include "map.h"
 
 char *attr = (char*)0x5800;
 
@@ -16,10 +17,11 @@ void draw_block(int index, int x, int y) {
 }
 
 int main() {
-    draw_block(0, 0, 0);
-    draw_block(1, 1, 0);
-    draw_block(2, 2, 0);
-    draw_block(14, 1, 1);
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 32; j++) {
+            draw_block(map[i][j], j, i);
+        }
+    }
 
     return 0;
 }

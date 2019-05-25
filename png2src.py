@@ -1,7 +1,6 @@
 import png
-from itertools import zip_longest
 
-PNG_FILE = "test.png"
+PNG_FILE = "tiles.png"
 
 
 def get_color(r, g, b):
