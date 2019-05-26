@@ -8,4 +8,4 @@ ZX Spectrum tile-based bitmap graphics demo. The executable `main.tap` is includ
 
 1. Install Python dependencies with `pipenv install`
 2. Convert graphics to source code with `pipenv run python png2src.py > data.h`
-3. Build the executable with `zcc +zx -vn -clib=sdcc_iy -startup=31 main.c -o main -create-app`
+3. Build the executable with `make`
