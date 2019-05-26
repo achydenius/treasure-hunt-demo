@@ -14,46 +14,69 @@ typedef struct Player {
     char previous_x, previous_y;
 } Player;
 
-char *attr = (char*)0x5800;
+char allowed_tile_count = 24;
+char allowed_tiles[] = {
+    0x07,
+    0x0A, 0x0B, 0x2A, 0x2B,
+    0x0C, 0x2C,
+    0x0D, 0x0E, 0x0F, 0x10, 0x2D, 0x2E, 0x2F, 0x30, 0x4D, 0x4E, 0x4F, 0x50,
+    0x18, 0x19, 0x38, 0x39,
+    0x1A
+};
 
-void draw_block(int index, int x, int y) {
-    char *block = data[index];
+void draw_tile(int index, int x, int y) {
+    char *tile = data[index];
 
     y <<= 3;
     char low = ((y & 0b00111000) << 2) | x;
     char high = 0x40 | ((y & 0b11000000) >> 3) | (y & 0b00000111);
 
     for (int i = 0; i < 8; i++) {
-        *(char*)((high << 8) | low) = block[i];
+        *(char*)((high << 8) | low) = tile[i];
         high++;
     }
 }
 
+char is_allowed(int x, int y) {
+    char tile = map[y][x];
+    for (int i = 0; i < allowed_tile_count; i++) {
+        if (allowed_tiles[i] == tile) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void move_player(Player *p, int x, int y) {
-    p->previous_x = p->x;
-    p->previous_y = p->y;
-    p->x += x;
-    p->y += y;
-    p->needs_update = 1;
+    char nx = p->x + x;
+    char ny = p->y + y;
+
+    if (is_allowed(nx, ny) && is_allowed(nx + 1, ny) && is_allowed(nx, ny + 1) && is_allowed(nx + 1, ny + 1)) {
+        p->previous_x = p->x;
+        p->previous_y = p->y;
+        p->x = nx;
+        p->y = ny;
+        p->needs_update = 1;
+    }
 }
 
 void draw_player(Player *p) {
     // TODO: Draw only changed background tiles
-    draw_block(map[p->previous_y][p->previous_x], p->previous_x, p->previous_y);
-    draw_block(map[p->previous_y][p->previous_x + 1], p->previous_x + 1, p->previous_y);
-    draw_block(map[p->previous_y + 1][p->previous_x], p->previous_x, p->previous_y + 1);
-    draw_block(map[p->previous_y + 1][p->previous_x + 1], p->previous_x + 1, p->previous_y + 1);
+    draw_tile(map[p->previous_y][p->previous_x], p->previous_x, p->previous_y);
+    draw_tile(map[p->previous_y][p->previous_x + 1], p->previous_x + 1, p->previous_y);
+    draw_tile(map[p->previous_y + 1][p->previous_x], p->previous_x, p->previous_y + 1);
+    draw_tile(map[p->previous_y + 1][p->previous_x + 1], p->previous_x + 1, p->previous_y + 1);
 
-    draw_block(1, p->x, p->y);
-    draw_block(2, p->x + 1, p->y);
-    draw_block(33, p->x, p->y + 1);
-    draw_block(34, p->x + 1, p->y + 1);
+    draw_tile(1, p->x, p->y);
+    draw_tile(2, p->x + 1, p->y);
+    draw_tile(33, p->x, p->y + 1);
+    draw_tile(34, p->x + 1, p->y + 1);
 }
 
 int main() {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 32; j++) {
-            draw_block(map[i][j], j, i);
+            draw_tile(map[i][j], j, i);
         }
     }
 
