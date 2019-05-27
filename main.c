@@ -3,6 +3,9 @@
 #include "data.h"
 #include "map.h"
 
+#define SCREEN_ADDR 0x4000
+#define ATTR_ADDR 0x05800
+
 #define KEY_LEFT 0x8
 #define KEY_RIGHT 0x9
 #define KEY_DOWN 0xA
@@ -25,11 +28,14 @@ char allowed_tiles[] = {
 };
 
 void draw_tile(int index, int x, int y) {
-    char *tile = data[index];
+    char *tile = block_data[index];
+    char attr = block_attr[index];
+
+    *(char*)(ATTR_ADDR + (y * 32 + x)) = attr;
 
     y <<= 3;
     char low = ((y & 0b00111000) << 2) | x;
-    char high = 0x40 | ((y & 0b11000000) >> 3) | (y & 0b00000111);
+    char high = (SCREEN_ADDR >> 8) | ((y & 0b11000000) >> 3) | (y & 0b00000111);
 
     for (int i = 0; i < 8; i++) {
         *(char*)((high << 8) | low) = tile[i];
